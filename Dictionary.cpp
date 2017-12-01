@@ -23,18 +23,27 @@ Dictionary::Dictionary(){
         cout<< "Error opening input file" << endl;
         return;
     }
-   
-    block_insertion(inputFile);
     
     clock_t start = clock();
-    block_lookup();
+    block_insertion(inputFile);
     clock_t end = clock();
     double elapsed_time = double (end - start) / CLOCKS_PER_SEC;
+    cout << "Insertion finished after :" << elapsed_time << " seconds" << endl << endl;
+    cout << "Average number of collisions (first 1000)\t | " << (long double) avg_collision1/1000 << endl;
+    cout << "Average number of collisions (first 10000)\t | " << (long double) avg_collision2/10000 << endl;
+    cout << "Average number of collisions (first 100000)\t | " << (long double)avg_collision3/100000 << endl;
+    cout << "Average number of collisions (overall)\t | " << (long double) all_collision/(M-1) << endl << endl;
+    
+    start = clock();
+    block_lookup();
+    end = clock();
+    elapsed_time = double (end - start) / CLOCKS_PER_SEC;
     cout << "Lookup finished after :" << elapsed_time << " seconds" << endl << endl;
+    inputFile.close();
 }
 void Dictionary::block_insertion(ifstream &inputFile){
     
-    BookCharacter adiniferihakoydum;
+    BookCharacter charobj;
     vector<bool> check_empty;
     unsigned long index;
     unsigned long line_count = 0;
@@ -43,27 +52,26 @@ void Dictionary::block_insertion(ifstream &inputFile){
     newCharacter.resize(M);
     check_empty.resize(M);
     for (unsigned long i = 0; i < M; i++) {
-        check_empty[i] = true;
+        check_empty[i] = true;      //it is for checking the index is empty or not. True means empty.
     }
     
-    clock_t start = clock();
     while (getline(inputFile, line)) {
         line_count++;
 
-        adiniferihakoydum = BookCharacter(line);
+        charobj = BookCharacter(line);
         
-        index = hash(adiniferihakoydum.getKey());
+        index = hash(charobj.getKey());
         if(check_empty[index]){     //if that index is empty
-            newCharacter[index] = adiniferihakoydum;    //insert the character
-            check_empty[index] = false;
+            newCharacter[index] = charobj;    //insert the character
+            check_empty[index] = false;       //and make the index false as not empty
         }
         else{           // do probing and insert
-            while (!check_empty[index]) {
+            while (!check_empty[index]) {   //until it founds the true (empty) index
                 collision++;        //total collision number
                 count++;            //collision count spesific to one index and one book character
-                index = quadratic_probe(count, adiniferihakoydum.getKey());
+                index = quadratic_probe(count, charobj.getKey());
             }
-            newCharacter[index] = adiniferihakoydum;    //insert the character
+            newCharacter[index] = charobj;    //insert the character
             check_empty[index] = false;
             count = 0;
         }
@@ -78,15 +86,7 @@ void Dictionary::block_insertion(ifstream &inputFile){
             all_collision = collision;
         
     }
-    clock_t end = clock();
-    
-    double elapsed_time = double (end - start) / CLOCKS_PER_SEC;
-    cout << "Insertion finished after :" << elapsed_time << " seconds" << endl << endl;
-    cout << "Average number of collisions (first 1000)\t | " << (long double) avg_collision1/1000 << endl;
-    cout << "Average number of collisions (first 10000)\t | " << (long double) avg_collision2/10000 << endl;
-    cout << "Average number of collisions (first 100000)\t | " << (long double)avg_collision3/100000 << endl;
-    cout << "Average number of collisions (overall)\t | " << (long double) all_collision/(M-1) << endl << endl;
-    
+
 }
 
 unsigned long Dictionary::hash(unsigned long k){
@@ -131,5 +131,4 @@ void Dictionary::block_lookup(){
             lookupOut << line << '\t' << newCharacter[index].getCharacter() << endl;
         }
     }
-    
 }

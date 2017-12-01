@@ -20,20 +20,28 @@ List::List(){
         cout<< "Error opening input file" << endl;
         return;
     }
+    
+    clock_t start = clock();
     block_insertion(inputFile);
+    clock_t end = clock();
+    double elapsed_time = double (end - start) / CLOCKS_PER_SEC;
+    cout << "Insertion finished after :" << elapsed_time << " seconds" << endl;
+    
+    start = clock();
     block_lookup();
+    end = clock();
+    elapsed_time = double (end - start) / CLOCKS_PER_SEC;
+    cout << "Lookup finished after :" << elapsed_time << " seconds" << endl;
+    inputFile.close();
 }
 void List::block_insertion(ifstream &inputFile){
     BookCharacter bookch;
     string line;
-    clock_t start = clock();
+    
     while(getline(inputFile, line)){
         bookch = BookCharacter(line);
         characterList.push_back(bookch);
     }
-    clock_t end = clock();
-    double elapsed_time = double (end - start) / CLOCKS_PER_SEC;
-    cout << "Insertion finished after :" << elapsed_time << " seconds" << endl;
 }
 void List::block_lookup(){
     BookCharacter wanted;
@@ -49,7 +57,7 @@ void List::block_lookup(){
     
     string line;
     findit = characterList.begin();
-    clock_t start = clock();
+    
     while(getline(lookupFile, line)){
         wanted = BookCharacter(line);
         
@@ -64,7 +72,4 @@ void List::block_lookup(){
             }
         }
     }
-    clock_t end = clock();
-    double elapsed_time = double (end - start) / CLOCKS_PER_SEC;
-    cout << "Lookup finished after :" << elapsed_time << " seconds" << endl;
 }
